@@ -22,7 +22,7 @@ if True:
     )
 
 '''Preprocesing'''
-if True:
+if False:
     plt.figure()
     plt.imshow(train_images[0])
     plt.colorbar()
@@ -58,12 +58,12 @@ if True:
     model.fit(train_images, train_labels, epochs=3)
 
 '''Evaluate'''
-if True:
+if False:
     test_loss, test_acc = model.evaluate(test_images, test_labels)
     print('Test accuracy', test_acc)
 
 '''Predictions'''
-if True:
+if False:
     predictions = model.predict(test_images)
     print(predictions[0],
           np.argmax(predictions[0]),
@@ -103,7 +103,7 @@ if True:
     plot_value_array(i, predictions, test_labels)
     plt.show()
 
-if True:
+if False:
     img = test_images[0]
     print(img.shape)
 
