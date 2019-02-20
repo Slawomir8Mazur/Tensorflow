@@ -75,5 +75,82 @@ def build_model():
     return model
 
 model = build_model()
+print(model.summary())
+
+''' model inspection - quick test'''
+example_batch = normed_train_data[:10]
+example_result = model.predict(example_batch)
+print(example_result)
+
+''' Training'''
+class PrintDot(keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs):
+        if epoch % 100 == 0: print('')
+        print('.', end='')
+
+early_stop = keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
+
+EPOCHS = 300
+
+history = model.fit(
+    normed_train_data, train_labels,
+    epochs=EPOCHS, validation_split=0.2, verbose=0,
+    callbacks=[early_stop, PrintDot()]
+)
+hist = pd.DataFrame(history.history)
+hist['epoch'] = history.epoch
+print(hist.tail())
+
+if True:
+    import matplotlib.pyplot as plt
 
 
+    def plot_history(history):
+        hist = pd.DataFrame(history.history)
+        hist['epoch'] = history.epoch
+
+        plt.figure()
+        plt.xlabel('Epoch')
+        plt.ylabel('Mean Abs Error [MPG]')
+        plt.plot(hist['epoch'], hist['mean_absolute_error'],
+                 label='Train Error')
+        plt.plot(hist['epoch'], hist['val_mean_absolute_error'],
+                 label='Val Error')
+        plt.legend()
+        plt.ylim([0, 5])
+
+        plt.figure()
+        plt.xlabel('Epoch')
+        plt.ylabel('Mean Square Error [$MPG^2$]')
+        plt.plot(hist['epoch'], hist['mean_squared_error'],
+                 label='Train Error')
+        plt.plot(hist['epoch'], hist['val_mean_squared_error'],
+                 label='Val Error')
+        plt.legend()
+        plt.ylim([0, 20])
+
+        plt.show()
+
+    plot_history(history)
+
+loss, mae, mse = model.evaluate(normed_test_data, test_labels, verbose=0)
+print("Testing set Mean ABS Error: {:5.2f} MPG".format(mae))
+
+''' Making predictions'''
+test_predictions = model.predict(normed_test_data).flatten()
+
+plt.scatter(test_labels, test_predictions)
+plt.xlabel('True Values [MPG]')
+plt.ylabel('Predictions [MPG]')
+plt.axis('equal')
+plt.axis('square')
+plt.xlim([0,plt.xlim()[1]])
+plt.ylim([0,plt.ylim()[1]])
+plt.plot([-100, 100], [-100, 100])
+plt.show()
+
+error = test_predictions - test_labels
+plt.hist(error, bins = 25)
+plt.xlabel("Predict Error [MGP]")
+plt.ylabel("count")
+plt.show()
