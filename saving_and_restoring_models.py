@@ -28,14 +28,49 @@ model = create_model()
 model.summary()
 
 ''' Saving checkpoints during training'''
-checkpoint_path = "training_1/cp.ckpt"
-checkpoint_dir = os.path.dirname(checkpoint_path)
+if False:
+    checkpoint_path = "training_1/cp.ckpt"
+    checkpoint_dir = os.path.dirname(checkpoint_path)
 
-cp_callback = tf.keras.callbacks.ModelCheckpoint(checkpoint_path,
-                                                 save_weights_only=True,
-                                                 verbose=1)
-model = create_model()
+    cp_callback = tf.keras.callbacks.ModelCheckpoint(checkpoint_path,
+                                                     save_weights_only=True,
+                                                     verbose=1)
+    model = create_model()
 
-model.fit(train_images, train_labels, epochs=10,
-          validation_data=(test_images, test_labels),
-          callbacks=[cp_callback])
+    model.fit(train_images, train_labels, epochs=10,
+              validation_data=(test_images, test_labels),
+              callbacks=[cp_callback])              #Saving
+
+''' Restore model'''
+if False:
+    new_model = create_model()
+
+    loss, acc = new_model.evaluate(test_images, test_labels)
+    print("Untrained model, accuracy: {:5.2g}%".format(100*acc))
+
+    new_model.load_weights(checkpoint_path)   # Restoring
+    loss, acc = new_model.evaluate(test_images, test_labels)
+    print("Untrained model, accuracy: {:5.2g}%".format(100*acc))
+
+''' Checkpoint callback options'''
+if True:
+    checkpoint_path = "training_2/cp-{epoch:04d}.ckpt"
+    checkpoint_dir = os.path.dirname(checkpoint_path)
+
+    cp_callback = tf.keras.callbacks.ModelCheckpoint(
+        checkpoint_path, verbose=1, save_weights_only=True, period=5    #Save weights every 5-epochs
+    )
+
+    model = create_model()
+    model.save_weights(checkpoint_path.format(epoch=0))
+    model.fit(train_images, train_labels,
+              epochs=50, callbacks=[cp_callback],
+              validation_data=(test_images, test_labels),
+              verbose=0)
+
+    ''' Bringing back'''
+    latest = tf.train.latest_checkpoint(checkpoint_dir)
+    new_model =create_model()
+    model.load_weights(latest)
+    loss, acc = new_model.evaluate(test_images, test_labels)
+    print("Restored model, accuracy: {:5.2f}".format(100*acc))
