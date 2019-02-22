@@ -87,7 +87,7 @@ if False:
     print("Restored model, accuracy: {:5.2f}%".format(100*acc))
 
 ''' Saving from HDF5 file'''
-if True:
+if False:
     model = create_model()
 
     #To restore from hdf5 file previous model must use keras.optimizer
@@ -100,3 +100,9 @@ if True:
     model.save('my_model.h5')
 
 ''' Restoring from HDF5 file'''
+if True:
+    new_model = keras.models.load_model('my_model.h5')
+    new_model.summary()
+
+    loss, acc = new_model.evaluate(test_images, test_labels)
+    print("Restored model, accuracy: {:5.2f}%".format(100*acc))
