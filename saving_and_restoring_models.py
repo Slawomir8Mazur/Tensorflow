@@ -53,7 +53,7 @@ if False:
     print("Untrained model, accuracy: {:5.2g}%".format(100*acc))
 
 ''' Checkpoint callback options'''
-if True:
+if False:
     checkpoint_path = "training_2/cp-{epoch:04d}.ckpt"
     checkpoint_dir = os.path.dirname(checkpoint_path)
 
@@ -74,3 +74,29 @@ if True:
     model.load_weights(latest)
     loss, acc = new_model.evaluate(test_images, test_labels)
     print("Restored model, accuracy: {:5.2f}".format(100*acc))
+
+''' Manually saved weights'''
+if False:
+    # Save
+    moel.save_weights('./checkpoints/my_checkpoint')
+    # Restore
+    new_model = create_model()
+    model.load_weights('./checkpoints/my_checkpoint')
+
+    loss, acc = new_model.evaluate(test_images, test_labels)
+    print("Restored model, accuracy: {:5.2f}%".format(100*acc))
+
+''' Saving from HDF5 file'''
+if True:
+    model = create_model()
+
+    #To restore from hdf5 file previous model must use keras.optimizer
+    model.compile(optimizer='adam',
+                  loss=tf.keras.losses.sparse_categorical_crossentropy,
+                  metrics=['accuracy'])
+
+    model.fit(train_images, train_labels, epochs=5)
+
+    model.save('my_model.h5')
+
+''' Restoring from HDF5 file'''
